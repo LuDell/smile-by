@@ -26,8 +26,9 @@ func Login_in() gin.HandlerFunc {
 		coll := utils.ShowAdminDB().C("user")
 		user := model.User{}
 		err_qu := coll.FindId(bson.ObjectIdHex(uid)).One(&user)
-		fmt.Println("查询日志",err_qu)
-		if len(user.Id_) ==0 {
+
+		if len(user.Id_) ==0 || err_qu != nil {
+			fmt.Println("查询日志",err_qu)
 			ctx.JSON(http.StatusOK, gin.H{"message":"用户未注册"})
 			return
 		}
