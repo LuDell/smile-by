@@ -38,6 +38,8 @@ func main()  {
 
 	app.GET("login_in",controller.Login_in())
 
+	app.GET("register",controller.Register())
+
 	server := &http.Server{
 		Addr: ":8088",
 		Handler: app,
