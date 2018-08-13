@@ -5,14 +5,13 @@ import (
 	"time"
 )
 
-var Db *mgo.Database
+var Session *mgo.Session
 
 func init()  {
-	session := globalSession().Copy();
-	Db = session.DB("admin")
+	globalSession()
 }
 
-func globalSession() *mgo.Session {
+func globalSession() {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     []string{"45.77.82.85:27017"},
 		Direct:    false,
@@ -26,5 +25,16 @@ func globalSession() *mgo.Session {
 		panic(err)
 	}
 	session.SetMode(mgo.Monotonic,true)
-	return session
+	defer session.Close()
+	Session = session.Copy()
+}
+
+func ShowAdminDB() *mgo.Database {
+	session := Session.Copy();
+	return session.DB("admin")
+}
+
+func ShowTestDB() *mgo.Database {
+	session := Session.Copy();
+	return session.DB("test")
 }

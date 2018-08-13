@@ -5,13 +5,9 @@ import (
 	"smile-by/utils"
 	"net/http"
 	"log"
-	"fmt"
+	"smile-by/model"
+	"gopkg.in/mgo.v2/bson"
 )
-
-type Person struct {
-	Uid string
-	Name string
-}
 
 func Login_in() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -26,18 +22,21 @@ func Login_in() gin.HandlerFunc {
 		http.SetCookie(ctx.Writer,uid_cookie)
 
 		uid := ctx.Query("uid")
-		guid:= utils.UniqueId()
 		//TODO mongo 持久化
-		coll := utils.Db.C("user")
-		err1 := coll.Insert(&Person{uid,"nil"})
+		coll := utils.ShowAdminDB().C("user")
+
+		objectId := bson.NewObjectId();
+
+		err1 := coll.Insert(&model.User{objectId,"nil",25})
 		if err1 !=nil {
-			fmt.Println("mongo持久化异常",err1)
+			log.Println("持久化异常",err1)
+			panic(err1)
 		}
 
 		con :=utils.RedisPool.Get()
 		//释放redis资源
 		defer con.Close()
-		_,err2 := con.Do("SET","user_"+guid,"{\"uid\":"+uid+",\"name\":\"nil\"}","EX",45*60)
+		_,err2 := con.Do("SET","user_"+objectId.Hex(),"{\"uid\":"+uid+",\"name\":\"nil\"}","EX",45*60)
 		if err2 != nil {log.Println(err2)}
 		ctx.JSON(http.StatusOK,"OK")
 	}
