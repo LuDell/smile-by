@@ -8,7 +8,7 @@ import (
 func AuthHandler() gin.HandlerFunc  {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		conn := *utils.RedisConn()
+		conn := utils.RedisPool.Get()
 		defer conn.Close()
 		val,err := conn.Do("GET","user_"+token)
 		if err != nil || val == nil {

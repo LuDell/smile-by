@@ -33,8 +33,7 @@ func Login_in() gin.HandlerFunc {
 			return
 		}
 
-		conn := *utils.RedisConn()
-		fmt.Println("redis 连接对象2的内存地址",&conn)
+		conn := utils.RedisPool.Get()
 		//释放redis资源
 		defer conn.Close()
 		_,err2 := conn.Do("SET","user_"+user.Id_.Hex(),"{\"uid\":"+uid+",\"name\":\"nil\"}","EX",45*60)

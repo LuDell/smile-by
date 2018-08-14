@@ -3,13 +3,12 @@ package utils
 import (
 	"github.com/gomodule/redigo/redis"
 	"time"
-	"fmt"
 )
 
-var Pool *redis.Pool
+var RedisPool *redis.Pool
 
 func init()  {
-	Pool = globalPool()
+	RedisPool = globalPool()
 }
 
 func globalPool() *redis.Pool {
@@ -34,11 +33,4 @@ func globalPool() *redis.Pool {
 		},
 	}
 	return pool
-}
-
-func RedisConn() *redis.Conn {
-	conn := Pool.Get();
-	fmt.Println("redis 连接对象1的内存地址",&conn)
-	defer Pool.Close();
-	return &conn
 }

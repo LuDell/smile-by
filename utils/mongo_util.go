@@ -8,10 +8,10 @@ import (
 var Session *mgo.Session
 
 func init()  {
-	globalSession()
+	Session = globalSession()
 }
 
-func globalSession() {
+func globalSession() *mgo.Session {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     []string{"45.77.82.85:27017"},
 		Direct:    false,
@@ -25,8 +25,7 @@ func globalSession() {
 		panic(err)
 	}
 	session.SetMode(mgo.Monotonic,true)
-	defer session.Close()
-	Session = session.Copy()
+	return session
 }
 
 func ShowAdminDB() *mgo.Database {
