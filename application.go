@@ -16,8 +16,9 @@ func main()  {
 	gin.DefaultWriter = io.MultiWriter(utils.LogFile(),os.Stdout)
 
 	app := gin.Default()
-
-	app.LoadHTMLGlob("views/*")
+	app.Static("/static","views/static")
+	app.StaticFile("/favicon.ico","views/static/favicon.ico")
+	app.LoadHTMLGlob("views/*.html")
 
 	app.GET("/",func(ctx *gin.Context) {
 
