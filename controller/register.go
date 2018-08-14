@@ -15,12 +15,11 @@ func Register() gin.HandlerFunc {
 		//TODO mongo 持久化
 		coll := utils.ShowAdminDB().C("user")
 
-		objectId := bson.NewObjectId();
+		objectId := bson.NewObjectId()
 
 		err1 := coll.Insert(&model.User{objectId,uid,25})
 		if err1 !=nil {
 			log.Println("持久化异常",err1)
-			panic(err1)
 		}
 	}
 }
