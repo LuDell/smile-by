@@ -223,10 +223,6 @@ var scanStructTests = []struct {
 			Sdp: &durationScan{Duration: time.Minute},
 		},
 	},
-	{"absent values",
-		[]string{},
-		&s1{},
-	},
 }
 
 func TestScanStruct(t *testing.T) {
@@ -420,11 +416,17 @@ var argsTests = []struct {
 	},
 	{"struct omitempty",
 		redis.Args{}.AddFlat(&struct {
-			Sdp *durationArg `redis:"Sdp,omitempty"`
+			I  int               `redis:"i,omitempty"`
+			U  uint              `redis:"u,omitempty"`
+			S  string            `redis:"s,omitempty"`
+			P  []byte            `redis:"p,omitempty"`
+			M  map[string]string `redis:"m,omitempty"`
+			Bt bool              `redis:"Bt,omitempty"`
+			Bf bool              `redis:"Bf,omitempty"`
 		}{
-			nil,
+			0, 0, "", []byte{}, map[string]string{}, true, false,
 		}),
-		redis.Args{},
+		redis.Args{"Bt", true},
 	},
 }
 
