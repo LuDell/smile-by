@@ -3,17 +3,15 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"io"
-	"os"
 	"time"
 	"smile-by/handler"
 	"smile-by/controller"
-	"smile-by/utils"
+	"smile-by/config"
 )
 
 func main()  {
-	//记录日志到日志文件
-	gin.DefaultWriter = io.MultiWriter(utils.LogFile(),os.Stdout)
+	//全局日志
+	logger := config.Log
 
 	app := gin.Default()
 	app.Static("/static","views/static")
@@ -21,7 +19,7 @@ func main()  {
 	app.LoadHTMLGlob("views/*.html")
 
 	app.GET("/",func(ctx *gin.Context) {
-
+		logger.Info("gin初始化路由，作者","okay")
 		ctx.HTML(http.StatusOK,"index.html",gin.H{"data":"hello world"})
 
 	})

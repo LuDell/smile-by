@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"strconv"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Test_run(t *testing.T)  {
@@ -22,8 +23,12 @@ func Test_run(t *testing.T)  {
 	}
 }
 
-func Test_go()  {
+func Test_log(test *testing.T)  {
 
+	log.WithFields(log.Fields{
+		"omg":    true,
+		"number": 100,
+	}).Fatal("The ice breaks!")
 }
 
 
