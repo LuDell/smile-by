@@ -8,6 +8,7 @@ import (
 	"smile-by/model"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/gin-gonic/gin/json"
 )
 
 func Login_in() gin.HandlerFunc {
@@ -36,7 +37,9 @@ func Login_in() gin.HandlerFunc {
 		conn := utils.RedisPool.Get()
 		//释放redis资源
 		defer conn.Close()
-		_,err2 := conn.Do("SET","user_"+user.Id_.Hex(),"{\"uid\":"+uid+",\"name\":\"nil\"}","EX",45*60)
+		//转化json
+		jsons,_ :=json.Marshal(user)
+		_,err2 := conn.Do("SET","user_"+user.Id_.Hex(),jsons,"EX",45*60)
 		if err2 != nil {log.Println(err2)}
 		ctx.JSON(http.StatusOK,"OK")
 	}
