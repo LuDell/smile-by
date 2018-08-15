@@ -1,0 +1,17 @@
+package: smile-by
+import:
+- package: github.com/gin-gonic/gin
+  version: ~1.3.0
+  subpackages:
+  - json
+- package: github.com/go-sql-driver/mysql
+  version: ~1.4.0
+- package: github.com/gomodule/redigo
+  version: ~2.0.0
+  subpackages:
+  - redis
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+- package: github.com/Sirupsen/logrus
+  version: ~1.0.6
