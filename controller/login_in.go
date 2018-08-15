@@ -20,7 +20,6 @@ func Login_in() gin.HandlerFunc {
 			Value:   "123456",
 			Path:     "/",
 			HttpOnly: true,
-			MaxAge:   -1,
 		}
 		http.SetCookie(ctx.Writer,uid_cookie)
 		uid := ctx.Query("uid")
