@@ -5,10 +5,12 @@ import (
 	"smile-by/utils"
 	"gopkg.in/mgo.v2/bson"
 	"smile-by/model"
-	"log"
+	"smile-by/config"
 )
 
 func Register() gin.HandlerFunc {
+
+	logger := config.Log
 	return func(ctx *gin.Context){
 		//用户注册
 		uid := ctx.Query("uid")
@@ -19,7 +21,7 @@ func Register() gin.HandlerFunc {
 
 		err1 := coll.Insert(&model.User{objectId,uid,25})
 		if err1 !=nil {
-			log.Println("持久化异常",err1)
+			logger.Info("持久化异常",err1)
 		}
 	}
 }

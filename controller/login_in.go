@@ -4,14 +4,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"smile-by/utils"
 	"net/http"
-	"log"
 	"smile-by/model"
-	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gin-gonic/gin/json"
+	"smile-by/config"
 )
 
 func Login_in() gin.HandlerFunc {
+
+	logger := config.Log
 	return func(ctx *gin.Context) {
 		//用户登陆
 		uid_cookie:=&http.Cookie{
@@ -29,7 +30,7 @@ func Login_in() gin.HandlerFunc {
 		err_qu := coll.FindId(bson.ObjectIdHex(uid)).One(&user)
 
 		if len(user.Id_) ==0 || err_qu != nil {
-			fmt.Println("查询日志",err_qu)
+			logger.Info("查询日志",err_qu)
 			ctx.JSON(http.StatusOK, gin.H{"message":"用户未注册"})
 			return
 		}
@@ -40,7 +41,7 @@ func Login_in() gin.HandlerFunc {
 		//转化json
 		jsons,_ :=json.Marshal(user)
 		_,err2 := conn.Do("SET","user_"+user.Id_.Hex(),jsons,"EX",45*60)
-		if err2 != nil {log.Println(err2)}
+		if err2 != nil {logger.Info(err2)}
 		ctx.JSON(http.StatusOK,"OK")
 	}
 }

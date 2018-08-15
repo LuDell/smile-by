@@ -13,7 +13,8 @@ func main()  {
 	//全局日志
 	logger := config.Log
 
-	app := gin.Default()
+	app := gin.New()
+	app.Use(gin.Recovery())
 	app.Static("/static","views/static")
 	app.StaticFile("/favicon.ico","views/static/favicon.ico")
 	app.LoadHTMLGlob("views/*.html")
