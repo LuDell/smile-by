@@ -1,25 +1,16 @@
 package config
 
 import (
-	"github.com/Sirupsen/logrus"
-	"os"
+	log "github.com/cihub/seelog"
 )
 
-var Log *logrus.Logger
+var Logger log.LoggerInterface
 
-func init()  {
-	Log = log_config()
-}
+func init() {
+	defer log.Flush()
+	//加载配置文件
+	Logger, _ = log.LoggerFromConfigAsFile("config/seelog.xml")
 
-func log_config() * logrus.Logger {
-	logger := &logrus.Logger{
-		Out: os.Stdout,
-		Formatter: &logrus.TextFormatter{
-			ForceColors:true,
-			FullTimestamp:true,
-			TimestampFormat:"2006-01-02 15:04:05",
-		},
-		Level:logrus.InfoLevel,
-	}
-	return logger
+	//替换记录器
+	log.ReplaceLogger(Logger)
 }

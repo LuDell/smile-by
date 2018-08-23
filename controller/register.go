@@ -5,12 +5,12 @@ import (
 	"smile-by/utils"
 	"gopkg.in/mgo.v2/bson"
 	"smile-by/model"
-	"smile-by/config"
+	"github.com/jeanphorn/log4go"
 )
 
 func Register() gin.HandlerFunc {
 
-	logger := config.Log
+	logger := log4go.NewDefaultLogger(log4go.INFO)
 	return func(ctx *gin.Context){
 		//用户注册
 		uid := ctx.Query("uid")

@@ -11,8 +11,9 @@ import (
 )
 
 func Login_in() gin.HandlerFunc {
+	//日志
+	logger := config.Logger
 
-	logger := config.Log
 	return func(ctx *gin.Context) {
 		//用户登陆
 		uid_cookie:=&http.Cookie{

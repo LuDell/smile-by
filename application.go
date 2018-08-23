@@ -10,8 +10,8 @@ import (
 )
 
 func main()  {
-	//全局日志
-	logger := config.Log
+	//初始init
+	logger := config.Logger
 
 	app := gin.New()
 	app.Use(gin.Recovery())
