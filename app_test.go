@@ -1,11 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 	"strconv"
-	log "github.com/Sirupsen/logrus"
+	"smile-by/config"
+	"time"
 )
+
+var logger = config.Logger
 
 func Test_run(t *testing.T)  {
 	var chan1 = make(chan string,3)
@@ -15,20 +17,22 @@ func Test_run(t *testing.T)  {
 			chan1 <- temp
 		}(i)
 	}
+
 	for  i := 0 ; i<10; i++ {
 		go func(chanTemp chan string) {
 			var temp = <-chan1
-			fmt.Println("读取",temp)
+			logger.Info("读取",temp)
 		}(chan1)
 	}
+
+	time.Sleep(1 *time.Second)
 }
 
 func Test_log(test *testing.T)  {
-
-	log.WithFields(log.Fields{
-		"omg":    true,
-		"number": 100,
-	}).Fatal("The ice breaks!")
+	chanTemp := make(chan string,1)
+	chanTemp <- "start"
+	logger.Info(<- chanTemp)
+	time.Sleep(1 *time.Second)
 }
 
 
