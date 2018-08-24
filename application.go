@@ -20,11 +20,13 @@ func main()  {
 	app.LoadHTMLGlob("views/*.html")
 
 	app.GET("/",func(ctx *gin.Context) {
+
 		cookie,err := ctx.Request.Cookie("admin")
-		var value string
-		if(err == nil){
-			value = cookie.Value
+		if(err != nil){
+			logger.Error("cookie错误",err)
 		}
+
+		value := cookie.Value
 		logger.Info("返回的cookie值", value)
 		ctx.HTML(http.StatusOK,"index.html",gin.H{"data":"hello world"})
 
