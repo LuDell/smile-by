@@ -7,6 +7,7 @@ import (
 	"smile-by/handler"
 	"smile-by/controller"
 	"smile-by/config"
+	"smile-by/resource"
 )
 
 func main()  {
@@ -15,6 +16,15 @@ func main()  {
 
 	app := gin.New()
 	app.Use(gin.Recovery())
+
+	dirs := []string{"views"} // 设置需要释放的目录
+	for _, dir := range dirs {
+		// 解压dir目录到当前目录
+		if err := resource.RestoreAssets("./", dir); err != nil {
+			break
+		}
+	}
+
 	app.Static("/static","views/static")
 	app.StaticFile("/favicon.ico","views/static/favicon.ico")
 	app.LoadHTMLGlob("views/*.html")
