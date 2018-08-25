@@ -32,11 +32,11 @@ func main()  {
 	app.GET("/",func(ctx *gin.Context) {
 
 		cookie,err := ctx.Request.Cookie("admin")
-		if(err != nil){
-			logger.Error("cookie错误",err)
+		var value string
+		if(err == nil){
+			value = cookie.Value
 		}
 
-		value := cookie.Value
 		logger.Info("返回的cookie值", value)
 		ctx.HTML(http.StatusOK,"index.html",gin.H{"data":"hello world"})
 
