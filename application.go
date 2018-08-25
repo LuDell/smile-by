@@ -32,9 +32,9 @@ func main()  {
 	app.GET("/",func(ctx *gin.Context) {
 
 		cookie,err := ctx.Request.Cookie("admin")
-		var value string
+		var value *string
 		if(err == nil){
-			value = cookie.Value
+			value = &cookie.Value
 		}
 
 		logger.Info("返回的cookie值", value)
