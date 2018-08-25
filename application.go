@@ -8,6 +8,8 @@ import (
 	"smile-by/controller"
 	"smile-by/config"
 	"smile-by/resource"
+	"os"
+	"path/filepath"
 )
 
 func main()  {
@@ -18,10 +20,17 @@ func main()  {
 	app.Use(gin.Recovery())
 
 	dirs := []string{"views","views/static"} // 设置需要释放的目录
+	var isSuccess bool
 	for _, dir := range dirs {
 		// 解压dir目录到当前目录
 		if err := resource.RestoreAssets("./", dir); err != nil {
+			isSuccess = false
 			break
+		}
+	}
+	if !isSuccess {
+		for _, dir := range dirs {
+			os.RemoveAll(filepath.Join("./", dir))
 		}
 	}
 
