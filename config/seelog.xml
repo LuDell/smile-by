@@ -11,7 +11,7 @@
         <!-- <buffered> 将日志先存在内存中，定期写入文件，适合日志并发量较大或 IO 比较紧张的场合 size: 缓存大小; flushperiod: 缓存间隔(毫秒) -->
         <filter levels="info,error">
             <buffered formatid="common" size="10000" flushperiod="1000">
-                <file path="D:\data\okay_logs\logger.log"/>
+                <file path="/var/log/okay_logs/logger.log"/>
             </buffered>
         </filter>
     </outputs>
