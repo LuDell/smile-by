@@ -13,7 +13,7 @@ import (
 func main()  {
 	//初始init
 	logger := config.Logger
-	dirs := []string{"views"} // 设置需要释放的目录
+	dirs := []string{"views","config/seelog.xml","config/app.ini"} // 设置需要释放的目录
 	for _, dir := range dirs {
 		// 解压dir目录到当前目录
 		if err := resource.RestoreAssets("./", dir); err != nil {
