@@ -13,10 +13,6 @@ import (
 func main()  {
 	//初始init
 	logger := config.Logger
-
-	app := gin.New()
-	app.Use(gin.Recovery())
-
 	dirs := []string{"views"} // 设置需要释放的目录
 	for _, dir := range dirs {
 		// 解压dir目录到当前目录
@@ -25,6 +21,8 @@ func main()  {
 		}
 	}
 
+	app := gin.New()
+	app.Use(gin.Recovery())
 	app.Static("/static","views/static")
 	app.StaticFile("/favicon.ico","views/static/favicon.ico")
 	app.LoadHTMLGlob("views/*.html")
