@@ -7,12 +7,11 @@ import (
 	"smile-by/model"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gin-gonic/gin/json"
-	"smile-by/config"
 )
 
 func Login_in() gin.HandlerFunc {
 	//日志
-	logger := config.Logger
+	logger := utils.Logger
 
 	return func(ctx *gin.Context) {
 		//用户登陆

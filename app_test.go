@@ -3,11 +3,11 @@ package main
 import (
 	"testing"
 	"strconv"
-	"smile-by/config"
 	"time"
+	"smile-by/utils"
 )
 
-var logger = config.Logger
+var logger = utils.Logger
 
 func Test_run(t *testing.T)  {
 	var chan1 = make(chan string,3)
