@@ -107,7 +107,7 @@ func configSeelogXml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "config/seelog.xml", size: 1101, mode: os.FileMode(438), modTime: time.Unix(1535359671, 0)}
+	info := bindataFileInfo{name: "config/seelog.xml", size: 1101, mode: os.FileMode(438), modTime: time.Unix(1535363536, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
