@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/gomodule/redigo/redis"
 	"time"
+	"smile-by/model"
 )
 
 var RedisPool *redis.Pool
@@ -12,16 +13,17 @@ func init()  {
 }
 
 func globalPool() *redis.Pool {
+	config := model.InitConfig().Redis;
 	pool := &redis.Pool{
-		MaxIdle:2,
-		MaxActive:5,
+		MaxIdle: config.Max_idle,
+		MaxActive: config.Max_active,
 		IdleTimeout:6000 *time.Second,
 		Dial: func() (redis.Conn, error) {
-			con,err1 :=redis.Dial("tcp","45.77.82.85:6388")
+			con,err1 :=redis.Dial("tcp",config.Tcp+":"+config.Port)
 			if err1 != nil {
 				panic(err1)
 			}
-			_,err2 := con.Do("AUTH","1q2w3e4r")
+			_,err2 := con.Do("AUTH",config.Password)
 			if err2 != nil {
 				panic(err2)
 			}

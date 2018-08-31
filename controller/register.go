@@ -15,7 +15,9 @@ func Register() gin.HandlerFunc {
 		//用户注册
 		uid := ctx.Query("uid")
 		//TODO mongo 持久化
-		coll := utils.ShowAdminDB().C("user")
+		DB := utils.ShowDB()
+		defer DB.Session.Close()
+		coll := DB.C("user")
 
 		objectId := bson.NewObjectId()
 

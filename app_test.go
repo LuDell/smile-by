@@ -5,6 +5,10 @@ import (
 	"strconv"
 	"time"
 	"smile-by/utils"
+	"os"
+	"encoding/json"
+	"fmt"
+	"smile-by/model"
 )
 
 var logger = utils.Logger
@@ -28,11 +32,19 @@ func Test_run(t *testing.T)  {
 	time.Sleep(1 *time.Second)
 }
 
-func Test_log(test *testing.T)  {
-	chanTemp := make(chan string,1)
-	chanTemp <- "start"
-	logger.Info(<- chanTemp)
-	time.Sleep(1 *time.Second)
+func Test_config(test *testing.T)  {
+	file,err1 :=os.Open("config/config.json");
+	defer file.Close()
+	if err1 !=nil {
+		logger.Error("读取配置文件错误", err1)
+	}
+	decoder := json.NewDecoder(file)
+	config := model.Config{}
+	err2:= decoder.Decode(&config)
+	if err2 !=nil{
+		logger.Error("数据绑定错误",err2)
+	}
+	fmt.Println("参数详情",config)
 }
 
 

@@ -2,7 +2,7 @@ package utils
 
 import (
 	"gopkg.in/mgo.v2"
-	"time"
+	"smile-by/model"
 )
 
 var Session *mgo.Session
@@ -11,14 +11,15 @@ func init()  {
 	Session = globalSession()
 }
 
+var config = model.InitConfig().Mongo
 func globalSession() *mgo.Session {
 	dialInfo := &mgo.DialInfo{
-		Addrs:     []string{"45.77.82.85:27017"},
+		Addrs:     []string{config.Tcp+":"+config.Port},
 		Direct:    false,
-		Timeout:   time.Second * 1,
-		Username:  "admin",
-		Password:  "1q2w3e4r",
-		PoolLimit: 4096, // Session.SetPoolLimit
+		Timeout:   config.Timeout,
+		Username:  config.User_name,
+		Password:  config.Password,
+		PoolLimit: 5, // Session.SetPoolLimit
 	}
 	session, err := mgo.DialWithInfo(dialInfo)
 	if nil != err {
@@ -28,12 +29,7 @@ func globalSession() *mgo.Session {
 	return session
 }
 
-func ShowAdminDB() *mgo.Database {
+func ShowDB() *mgo.Database {
 	session := Session.Copy();
-	return session.DB("admin")
-}
-
-func ShowTestDB() *mgo.Database {
-	session := Session.Copy();
-	return session.DB("test")
+	return session.DB(config.Database)
 }

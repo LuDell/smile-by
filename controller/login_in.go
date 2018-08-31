@@ -24,7 +24,9 @@ func Login_in() gin.HandlerFunc {
 		http.SetCookie(ctx.Writer,uid_cookie)
 		uid := ctx.Query("uid")
 		//TODO mongo 持久化
-		coll := utils.ShowAdminDB().C("user")
+		DB := utils.ShowDB()
+		defer DB.Session.Close()
+		coll := DB.C("user")
 		user := model.User{}
 		err_qu := coll.FindId(bson.ObjectIdHex(uid)).One(&user)
 
