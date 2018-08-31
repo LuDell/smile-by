@@ -2,11 +2,11 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"smile-by/utils"
 	"net/http"
-	"smile-by/model"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gin-gonic/gin/json"
+	"smile-by/model"
+	"smile-by/utils"
 )
 
 func Login_in() gin.HandlerFunc {

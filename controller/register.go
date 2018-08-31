@@ -2,10 +2,10 @@
 
 import (
 	"github.com/gin-gonic/gin"
-	"smile-by/utils"
 	"gopkg.in/mgo.v2/bson"
 	"smile-by/model"
 	"github.com/jeanphorn/log4go"
+	"smile-by/utils"
 )
 
 func Register() gin.HandlerFunc {
