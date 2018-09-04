@@ -11,7 +11,7 @@ func init()  {
 	Session = globalSession()
 }
 
-var config = model.InitConfig().Mongo
+var config = model.SeeLogConfig.Mongo
 func globalSession() *mgo.Session {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     []string{config.Tcp+":"+config.Port},

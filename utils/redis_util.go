@@ -13,7 +13,7 @@ func init()  {
 }
 
 func globalPool() *redis.Pool {
-	config := model.InitConfig().Redis;
+	config := model.SeeLogConfig.Redis;
 	pool := &redis.Pool{
 		MaxIdle: config.Max_idle,
 		MaxActive: config.Max_active,

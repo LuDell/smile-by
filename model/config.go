@@ -7,7 +7,13 @@ import (
 	"time"
 )
 
-func InitConfig() *Config {
+var SeeLogConfig *Config
+
+func init()  {
+	SeeLogConfig = initConfig()
+}
+
+func initConfig() *Config {
 	file,err1 := os.Open("config/config.json");
 	defer file.Close()
 	if err1 !=nil {
