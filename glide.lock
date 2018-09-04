@@ -1,5 +1,5 @@
 hash: acaa1979b3a63e8bc10d6d81f8cd0e48f7655faaddea2e4b7bb25781d4057252
-updated: 2018-08-31T16:09:42.8578504+08:00
+updated: 2018-09-04T09:47:39.3606062+08:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -22,8 +22,6 @@ imports:
   subpackages:
   - internal
   - redis
-- name: github.com/jeanphorn/log4go
-  version: 98034c71884ea84c88f2a7d28eaeb22eb0cc8b82
 - name: github.com/json-iterator/go
   version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/mattn/go-isatty
@@ -32,14 +30,12 @@ imports:
   version: bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94
 - name: github.com/modern-go/reflect2
   version: 94122c33edd36123c84d5368cfb2b69df93a0ec8
-- name: github.com/toolkits/file
-  version: a5b3c5147e07f934d9f9d00b901a20b2529f1a57
 - name: github.com/ugorji/go
   version: e253f1f20942cb6dc505e504e8bbba4b7f434cb2
   subpackages:
   - codec
 - name: golang.org/x/sys
-  version: 49385e6e15226593f68b26af201feec29d5bba22
+  version: 2b024373dcd9800f0cae693839fac6ede8d64a8c
   subpackages:
   - unix
 - name: google.golang.org/appengine
