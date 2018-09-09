@@ -13,7 +13,7 @@ func UniqueId() string {
 	if _,err := io.ReadFull(rand.Reader,by); err != nil {
 		return ""
 	}
-	h := md5.New();
+	h := md5.New()
 	h.Write([]byte(base64.URLEncoding.EncodeToString(by)))
 	return hex.EncodeToString(h.Sum(nil))
 }

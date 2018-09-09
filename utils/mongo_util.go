@@ -30,6 +30,6 @@ func globalSession() *mgo.Session {
 }
 
 func ShowDB() *mgo.Database {
-	session := Session.Copy();
+	session := Session.Copy()
 	return session.DB(config.Database)
 }

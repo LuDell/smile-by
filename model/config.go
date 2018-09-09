@@ -14,7 +14,7 @@ func init()  {
 }
 
 func initConfig() *Config {
-	file,err1 := os.Open("config/config.json");
+	file,err1 := os.Open("config/config.json")
 	defer file.Close()
 	if err1 !=nil {
 		fmt.Println("读取配置文件错误", err1)
