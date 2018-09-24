@@ -2,4 +2,5 @@
 .idea
 *iml
 logs
+vendor
 config/config.json
