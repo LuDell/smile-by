@@ -2,3 +2,4 @@
 .idea
 *iml
 logs
+config/config.json
