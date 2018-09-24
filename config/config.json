@@ -1,7 +1,7 @@
 {
   "redis": {
     "tcp": "45.77.82.85",
-    "port":"6388",
+    "port":"6380",
     "password": "1q2w3e4r",
     "max_idle": 2,
     "max_active": 5
@@ -10,7 +10,7 @@
     "tcp": "45.77.82.85",
     "port": "27017",
     "database": "admin",
-    "user_name": "admin",
+    "user_name": "root",
     "password": "1q2w3e4r",
     "timeout" : 10000000000
   }
