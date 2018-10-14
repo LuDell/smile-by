@@ -43,6 +43,6 @@ func Login_in() gin.HandlerFunc {
 		jsons,_ :=json.Marshal(user)
 		_,err2 := conn.Do("SET","user_"+user.Id_.Hex(),jsons,"EX",45*60)
 		if err2 != nil {logger.Info(err2)}
-		ctx.JSON(http.StatusOK,"OK")
+		ctx.JSON(http.StatusOK,user)
 	}
 }
