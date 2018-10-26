@@ -30,11 +30,10 @@ func Login_in(ctx *gin.Context) {
 	err_qu := coll.FindId(bson.ObjectIdHex(uid)).One(&user)
 
 	if len(user.Id_) ==0 || err_qu != nil {
-		logger.Info("查询日志",err_qu)
-		ctx.JSON(http.StatusOK, gin.H{"message":"用户未注册"})
+		logger.Info("查询日志", err_qu)
+		ctx.JSON(http.StatusOK, gin.H{"message": "用户未注册"})
 		return
 	}
-
 	conn := utils.RedisPool.Get()
 	//释放redis资源
 	defer conn.Close()
