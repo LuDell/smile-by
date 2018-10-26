@@ -40,7 +40,7 @@ func main()  {
 
 	})
 
-	group := app.Group("api",handler.AuthHandler())
+	group := app.Group("api",handler.AuthHandler)
 	{
 		group.OPTIONS("public_info", func(ctx *gin.Context) {
 
@@ -51,9 +51,9 @@ func main()  {
 
 	}
 
-	app.GET("login_in",controller.Login_in())
+	app.GET("login_in",controller.Login_in)
 
-	app.GET("register",controller.Register())
+	app.GET("register",controller.Register)
 
 	server := &http.Server{
 		Addr: ":8088",
