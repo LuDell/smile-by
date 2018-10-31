@@ -30,23 +30,19 @@ func initConfig() *Config {
 }
 
 type Config struct {
-	Redis redis
-	Mongo mongo
-}
-
-type redis struct {
-	Tcp string
-	Port string
-	Password string
-	Max_idle int
-	Max_active int
-}
-
-type mongo struct {
-	Tcp string
-	Port string
-	Database string
-	User_name string
-	Password string
-	Timeout time.Duration
+	Redis struct {
+		Tcp string
+		Port string
+		Password string
+		Max_idle int
+		Max_active int
+	}
+	Mongo struct {
+		Tcp string
+		Port string
+		Database string
+		User_name string
+		Password string
+		Timeout time.Duration
+	}
 }
