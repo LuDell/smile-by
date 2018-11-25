@@ -517,10 +517,8 @@ func (d *msgpackDecDriver) DecodeNaked() {
 			if n.u == uint64(mpTimeExtTagU) {
 				n.v = valueTypeTime
 				n.t = d.decodeTime(clen)
-			} else if d.br {
-				n.l = d.r.readx(clen)
 			} else {
-				n.l = decByteSlice(d.r, clen, d.d.h.MaxInitLen, d.d.b[:])
+				n.l = d.r.readx(clen)
 			}
 		default:
 			d.d.errorf("cannot infer value: %s: Ox%x/%d/%s", msgBadDesc, bd, bd, mpdesc(bd))
@@ -913,11 +911,7 @@ func (d *msgpackDecDriver) decodeExtV(verifyTag bool, tag byte) (xtag byte, xbs 
 			d.d.errorf("wrong extension tag - got %b, expecting %v", xtag, tag)
 			return
 		}
-		if d.br {
-			xbs = d.r.readx(clen)
-		} else {
-			xbs = decByteSlice(d.r, clen, d.d.h.MaxInitLen, d.d.b[:])
-		}
+		xbs = d.r.readx(clen)
 	}
 	d.bdRead = false
 	return
@@ -1031,7 +1025,7 @@ func (c *msgpackSpecRpcCodec) ReadRequestBody(body interface{}) error {
 }
 
 func (c *msgpackSpecRpcCodec) parseCustomHeader(expectTypeByte byte, msgid *uint64, methodOrError *string) (err error) {
-	if cls := c.cls.load(); cls.closed {
+	if c.isClosed() {
 		return io.EOF
 	}
 

@@ -7,7 +7,7 @@ import (
 
 var Session *mgo.Session
 
-func init()  {
+func del_init()  {
 	Session = globalSession()
 }
 

@@ -99,3 +99,32 @@ func Test_sub(test *testing.T)  {
 
 }
 
+func TestMQ(test *testing.T)  {
+	var connection = utils.MQConn
+	defer connection.Close()
+
+	var channel,_ = connection.Channel()
+	//channel.ExchangeDeclare("okay","topic",false,false,false,false,nil)
+	var quene,_ = channel.QueueDeclare("okay_queue",false,false,false,false,nil)
+	//channel.QueueBind("okay_queue","info","okay",false,nil)
+
+	msgs, _ := channel.Consume(
+		 quene.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil)
+	forever := make(chan bool)
+
+	 go func() {
+	         for d := range msgs {
+		             log.Printf("Received a message: %s", d.Body)
+		         }
+	     }()
+
+	 log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	 <-forever
+}
+

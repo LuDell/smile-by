@@ -66,14 +66,6 @@ type encDriverAsis interface {
 	EncodeAsis(v []byte)
 }
 
-type encodeError struct {
-	codecError
-}
-
-func (e encodeError) Error() string {
-	return fmt.Sprintf("%s encode error: %v", e.name, e.err)
-}
-
 type encDriverNoopContainerWriter struct{}
 
 func (encDriverNoopContainerWriter) WriteArrayStart(length int) {}
@@ -549,49 +541,16 @@ func (e *Encoder) kStructFieldKey(keyType valueType, s *structFieldInfo) {
 	}
 }
 
-func (e *Encoder) kStructFieldKeyName(keyType valueType, encName string) {
-	var m must
-	// use if-else-if, not switch (which compiles to binary-search)
-	// since keyType is typically valueTypeString, branch prediction is pretty good.
-	if keyType == valueTypeString {
-		e.e.EncodeString(cUTF8, encName)
-	} else if keyType == valueTypeInt {
-		e.e.EncodeInt(m.Int(strconv.ParseInt(encName, 10, 64)))
-	} else if keyType == valueTypeUint {
-		e.e.EncodeUint(m.Uint(strconv.ParseUint(encName, 10, 64)))
-	} else if keyType == valueTypeFloat {
-		e.e.EncodeFloat64(m.Float(strconv.ParseFloat(encName, 64)))
-	}
-}
-
 func (e *Encoder) kStruct(f *codecFnInfo, rv reflect.Value) {
 	fti := f.ti
 	elemsep := e.esep
 	tisfi := fti.sfiSrc
-	var newlen int
 	toMap := !(fti.toArray || e.h.StructToArray)
-	var mf map[string]interface{}
-	if f.ti.mf {
-		mf = rv2i(rv).(MissingFielder).CodecMissingFields()
-		toMap = true
-		newlen += len(mf)
-	} else if f.ti.mfp {
-		if rv.CanAddr() {
-			mf = rv2i(rv.Addr()).(MissingFielder).CodecMissingFields()
-		} else {
-			// make a new addressable value of same one, and use it
-			rv2 := reflect.New(rv.Type())
-			rv2.Elem().Set(rv)
-			mf = rv2i(rv2).(MissingFielder).CodecMissingFields()
-		}
-		toMap = true
-		newlen += len(mf)
-	}
 	// if toMap, use the sorted array. If toArray, use unsorted array (to match sequence in struct)
 	if toMap {
 		tisfi = fti.sfiSort
 	}
-	newlen += len(tisfi)
+	newlen := len(fti.sfiSort)
 	ee := e.e
 
 	// Use sync.Pool to reduce allocating slices unnecessarily.
@@ -655,21 +614,8 @@ func (e *Encoder) kStruct(f *codecFnInfo, rv reflect.Value) {
 		newlen++
 	}
 
-	var mflen int
-	for k, v := range mf {
-		if k == "" {
-			delete(mf, k)
-			continue
-		}
-		if fti.infoFieldOmitempty && isEmptyValue(reflect.ValueOf(v), e.h.TypeInfos, recur, recur) {
-			delete(mf, k)
-			continue
-		}
-		mflen++
-	}
-
 	if toMap {
-		ee.WriteMapStart(newlen + mflen)
+		ee.WriteMapStart(newlen)
 		if elemsep {
 			for j := 0; j < newlen; j++ {
 				kv = fkvs[j]
@@ -686,13 +632,6 @@ func (e *Encoder) kStruct(f *codecFnInfo, rv reflect.Value) {
 				e.kStructFieldKey(fti.keyType, kv.v)
 				e.encodeValue(kv.r, nil, true)
 			}
-		}
-		// now, add the others
-		for k, v := range mf {
-			ee.WriteMapElemKey()
-			e.kStructFieldKeyName(fti.keyType, k)
-			ee.WriteMapElemValue()
-			e.encode(v)
 		}
 		ee.WriteMapEnd()
 	} else {
@@ -1442,6 +1381,6 @@ func (e *Encoder) rawBytes(vv Raw) {
 	e.asis(v)
 }
 
-func (e *Encoder) wrapErr(v interface{}, err *error) {
-	*err = encodeError{codecError{name: e.hh.Name(), err: v}}
+func (e *Encoder) wrapErrstr(v interface{}, err *error) {
+	*err = fmt.Errorf("%s encode error: %v", e.hh.Name(), v)
 }

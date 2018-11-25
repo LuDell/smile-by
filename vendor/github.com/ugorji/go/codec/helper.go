@@ -143,8 +143,6 @@ var (
 	zeroByteSlice = oneByteArr[:0:0]
 )
 
-var codecgen bool
-
 var refBitset bitset32
 var pool pooler
 var panicv panicHdl
@@ -156,11 +154,6 @@ func init() {
 	refBitset.set(byte(reflect.Ptr))
 	refBitset.set(byte(reflect.Func))
 	refBitset.set(byte(reflect.Chan))
-}
-
-type clsErr struct {
-	closed    bool  // is it closed?
-	errClosed error // error on closing
 }
 
 type charEncoding uint8
@@ -300,30 +293,6 @@ type isZeroer interface {
 	IsZero() bool
 }
 
-type codecError struct {
-	name string
-	err  interface{}
-}
-
-func (e codecError) Cause() error {
-	switch xerr := e.err.(type) {
-	case nil:
-		return nil
-	case error:
-		return xerr
-	case string:
-		return errors.New(xerr)
-	case fmt.Stringer:
-		return errors.New(xerr.String())
-	default:
-		return fmt.Errorf("%v", e.err)
-	}
-}
-
-func (e codecError) Error() string {
-	return fmt.Sprintf("%s error: %v", e.name, e.err)
-}
-
 // type byteAccepter func(byte) bool
 
 var (
@@ -358,9 +327,8 @@ var (
 	jsonMarshalerTyp   = reflect.TypeOf((*jsonMarshaler)(nil)).Elem()
 	jsonUnmarshalerTyp = reflect.TypeOf((*jsonUnmarshaler)(nil)).Elem()
 
-	selferTyp         = reflect.TypeOf((*Selfer)(nil)).Elem()
-	missingFielderTyp = reflect.TypeOf((*MissingFielder)(nil)).Elem()
-	iszeroTyp         = reflect.TypeOf((*isZeroer)(nil)).Elem()
+	selferTyp = reflect.TypeOf((*Selfer)(nil)).Elem()
+	iszeroTyp = reflect.TypeOf((*isZeroer)(nil)).Elem()
 
 	uint8TypId      = rt2id(uint8Typ)
 	uint8SliceTypId = rt2id(uint8SliceTyp)
@@ -424,38 +392,12 @@ var immutableKindsSet = [32]bool{
 // Consequently, during (en|de)code, this takes precedence over
 // (text|binary)(M|Unm)arshal or extension support.
 //
-// By definition, it is not allowed for a Selfer to directly call Encode or Decode on itself.
-// If that is done, Encode/Decode will rightfully fail with a Stack Overflow style error.
-// For example, the snippet below will cause such an error.
-//     type testSelferRecur struct{}
-//     func (s *testSelferRecur) CodecEncodeSelf(e *Encoder) { e.MustEncode(s) }
-//     func (s *testSelferRecur) CodecDecodeSelf(d *Decoder) { d.MustDecode(s) }
-//
 // Note: *the first set of bytes of any value MUST NOT represent nil in the format*.
 // This is because, during each decode, we first check the the next set of bytes
 // represent nil, and if so, we just set the value to nil.
 type Selfer interface {
 	CodecEncodeSelf(*Encoder)
 	CodecDecodeSelf(*Decoder)
-}
-
-// MissingFielder defines the interface allowing structs to internally decode or encode
-// values which do not map to struct fields.
-//
-// We expect that this interface is bound to a pointer type (so the mutation function works).
-//
-// A use-case is if a version of a type unexports a field, but you want compatibility between
-// both versions during encoding and decoding.
-//
-// Note that the interface is completely ignored during codecgen.
-type MissingFielder interface {
-	// CodecMissingField is called to set a missing field and value pair.
-	//
-	// It returns true if the missing field was set on the struct.
-	CodecMissingField(field []byte, value interface{}) bool
-
-	// CodecMissingFields returns the set of fields which are not struct fields
-	CodecMissingFields() map[string]interface{}
 }
 
 // MapBySlice is a tag interface that denotes wrapped slice should encode as a map in the stream.
@@ -500,18 +442,6 @@ type BasicHandle struct {
 	intf2impls
 
 	RPCOptions
-
-	// TimeNotBuiltin configures whether time.Time should be treated as a builtin type.
-	//
-	// All Handlers should know how to encode/decode time.Time as part of the core
-	// format specification, or as a standard extension defined by the format.
-	//
-	// However, users can elect to handle time.Time as a custom extension, or via the
-	// standard library's encoding.Binary(M|Unm)arshaler or Text(M|Unm)arshaler interface.
-	// To elect this behavior, users can set TimeNotBuiltin=true.
-	// Note: Setting TimeNotBuiltin=true can be used to enable the legacy behavior
-	// (for Cbor and Msgpack), where time.Time was not a builtin supported type.
-	TimeNotBuiltin bool
 
 	// ---- cache line
 
@@ -1136,15 +1066,12 @@ type typeInfo struct {
 	jup bool // *T is a jsonUnmarshaler
 	cs  bool // T is a Selfer
 	csp bool // *T is a Selfer
-	mf  bool // T is a MissingFielder
-	mfp bool // *T is a MissingFielder
 
 	// other flags, with individual bits representing if set.
-	flags              typeInfoFlag
-	infoFieldOmitempty bool
+	flags typeInfoFlag
 
-	_ [6]byte   // padding
-	_ [2]uint64 // padding
+	// _ [2]byte   // padding
+	_ [3]uint64 // padding
 }
 
 func (ti *typeInfo) isFlag(f typeInfoFlag) bool {
@@ -1264,7 +1191,6 @@ func (x *TypeInfos) get(rtid uintptr, rt reflect.Type) (pti *typeInfo) {
 	ti.jm, ti.jmp = implIntf(rt, jsonMarshalerTyp)
 	ti.ju, ti.jup = implIntf(rt, jsonUnmarshalerTyp)
 	ti.cs, ti.csp = implIntf(rt, selferTyp)
-	ti.mf, ti.mfp = implIntf(rt, missingFielderTyp)
 
 	b1, b2 := implIntf(rt, iszeroTyp)
 	if b1 {
@@ -1282,7 +1208,6 @@ func (x *TypeInfos) get(rtid uintptr, rt reflect.Type) (pti *typeInfo) {
 		var omitEmpty bool
 		if f, ok := rt.FieldByName(structInfoFieldName); ok {
 			ti.toArray, omitEmpty, ti.keyType = parseStructInfo(x.structTag(f.Tag))
-			ti.infoFieldOmitempty = omitEmpty
 		} else {
 			ti.keyType = valueTypeString
 		}
@@ -1639,7 +1564,7 @@ func isEmptyStruct(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) 
 // 	return t
 // }
 
-func panicToErr(h errDecorator, err *error) {
+func panicToErr(h errstrDecorator, err *error) {
 	// Note: This method MUST be called directly from defer i.e. defer panicToErr ...
 	// else it seems the recover is not fully handled
 	if recoverPanicToErr {
@@ -1651,7 +1576,7 @@ func panicToErr(h errDecorator, err *error) {
 	}
 }
 
-func panicValToErr(h errDecorator, v interface{}, err *error) {
+func panicValToErr(h errstrDecorator, v interface{}, err *error) {
 	switch xerr := v.(type) {
 	case nil:
 	case error:
@@ -1661,18 +1586,18 @@ func panicValToErr(h errDecorator, v interface{}, err *error) {
 			// treat as special (bubble up)
 			*err = xerr
 		default:
-			h.wrapErr(xerr, err)
+			h.wrapErrstr(xerr.Error(), err)
 		}
 	case string:
 		if xerr != "" {
-			h.wrapErr(xerr, err)
+			h.wrapErrstr(xerr, err)
 		}
 	case fmt.Stringer:
 		if xerr != nil {
-			h.wrapErr(xerr, err)
+			h.wrapErrstr(xerr.String(), err)
 		}
 	default:
-		h.wrapErr(v, err)
+		h.wrapErrstr(v, err)
 	}
 }
 
@@ -1781,7 +1706,7 @@ func (c *codecFner) get(rt reflect.Type, checkFastpath, checkCodecSelfer bool) (
 		fi.addrF = true
 		fi.addrD = ti.csp
 		fi.addrE = ti.csp
-	} else if rtid == timeTypId && !c.h.TimeNotBuiltin {
+	} else if rtid == timeTypId {
 		fn.fe = (*Encoder).kTime
 		fn.fd = (*Decoder).kTime
 	} else if rtid == rawTypId {
@@ -1927,7 +1852,7 @@ func (c *codecFner) get(rt reflect.Type, checkFastpath, checkCodecSelfer bool) (
 				}
 				// fn.fd = (*Decoder).kArray
 			case reflect.Struct:
-				if ti.anyOmitEmpty || ti.mf || ti.mfp {
+				if ti.anyOmitEmpty {
 					fn.fe = (*Encoder).kStruct
 				} else {
 					fn.fe = (*Encoder).kStructNoOmitempty
@@ -2428,13 +2353,13 @@ func (panicHdl) errorf(format string, params ...interface{}) {
 	}
 }
 
-type errDecorator interface {
-	wrapErr(in interface{}, out *error)
+type errstrDecorator interface {
+	wrapErrstr(interface{}, *error)
 }
 
-type errDecoratorDef struct{}
+type errstrDecoratorDef struct{}
 
-func (errDecoratorDef) wrapErr(v interface{}, e *error) { *e = fmt.Errorf("%v", v) }
+func (errstrDecoratorDef) wrapErrstr(v interface{}, e *error) { *e = fmt.Errorf("%v", v) }
 
 type must struct{}
 

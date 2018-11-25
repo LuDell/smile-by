@@ -41,8 +41,6 @@ import (
 // However, codecgen doesn't support the following:
 //   - Canonical option. (codecgen IGNORES it currently)
 //     This is just because it has not been implemented.
-//   - MissingFielder implementation.
-//     If a type implements MissingFielder, it is completely ignored by codecgen.
 //
 // During encode/decode, Selfer takes precedence.
 // A type implementing Selfer will know how to encode/decode itself statically.
@@ -740,8 +738,8 @@ func (x *genRunner) enc(varname string, t reflect.Type) {
 	defer func() { x.line("}") }() //end if block
 
 	if t == timeTyp {
-		x.linef("} else if !z.EncBasicHandle().TimeNotBuiltin { r.EncodeTime(%s)", varname)
-		// return
+		x.linef("} else { r.EncodeTime(%s)", varname)
+		return
 	}
 	if t == rawTyp {
 		x.linef("} else { z.EncRaw(%s)", varname)
@@ -1332,8 +1330,8 @@ func (x *genRunner) dec(varname string, t reflect.Type, isptr bool) {
 		addrPfx = "&"
 	}
 	if t == timeTyp {
-		x.linef("} else if !z.DecBasicHandle().TimeNotBuiltin { %s%v = r.DecodeTime()", ptrPfx, varname)
-		// return
+		x.linef("} else { %s%v = r.DecodeTime()", ptrPfx, varname)
+		return
 	}
 	if t == rawTyp {
 		x.linef("} else { %s%v = z.DecRaw()", ptrPfx, varname)
