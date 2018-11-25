@@ -1,7 +1,7 @@
 {
   "redis": {
     "tcp": "45.77.82.85",
-    "port":"6380",
+    "port":"6379",
     "password": "1q2w3e4r",
     "max_idle": 2,
     "max_active": 5

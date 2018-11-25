@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"smile-by/model"
+	"github.com/gomodule/redigo/redis"
+	"log"
 )
 
 var logger = utils.Logger
@@ -47,4 +49,53 @@ func Test_config(test *testing.T)  {
 	fmt.Println("参数详情",config)
 }
 
+func Test_pub(test *testing.T)  {
+	con := utils.RedisPool.Get()
+	psc := redis.PubSubConn{con}
+
+	psc.Subscribe("hello")
+
+	for {
+		switch v := psc.Receive().(type) {
+		case redis.Message:
+			fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
+		case redis.Subscription:
+			fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
+		case error:
+			fmt.Printf(v.Error())
+		}
+	}
+}
+
+
+func Test_sub(test *testing.T)  {
+	con := utils.RedisPool.Get()
+
+	con.Send("SUBSCRIBE","hello")
+	con.Flush()
+
+	for {
+		reply, err := redis.Values(con.Receive())
+		if err != nil {
+			log.Println("Receive failed:", err)
+		}
+
+		log.Println("reply:", reply)
+
+		for i, v := range reply {
+
+			switch vv := v.(type) {
+			case int64:
+				log.Println(i, ":", vv)
+			case []byte:
+				log.Println(i, ":", string(vv))
+			case string:
+				log.Println(i, ":", vv)
+			default:
+				log.Println("unknown:", v)
+			}
+		}
+	}
+
+}
 

@@ -1,5 +1,5 @@
 hash: acaa1979b3a63e8bc10d6d81f8cd0e48f7655faaddea2e4b7bb25781d4057252
-updated: 2018-10-26T11:05:54.4883044+08:00
+updated: 2018-11-13T10:48:25.2302305+08:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -14,7 +14,7 @@ imports:
 - name: github.com/go-sql-driver/mysql
   version: d523deb1b23d913de5bdada721a6071e71283618
 - name: github.com/golang/protobuf
-  version: d3de96c4c28ef8af3aa1a892fc481e0f103c01ff
+  version: 951a149f90371fb8858c6c979d03bb2583611052
   subpackages:
   - proto
 - name: github.com/gomodule/redigo
@@ -23,7 +23,7 @@ imports:
   - internal
   - redis
 - name: github.com/json-iterator/go
-  version: 05d041de1043ba04b678fb046bd35455a9b1b33b
+  version: d05f387f50c0c406889b62cb5ec51c76a64d89ee
 - name: github.com/mattn/go-isatty
   version: 3fb116b820352b7f0c281308a4d6250c22d94e27
 - name: github.com/modern-go/concurrent
@@ -35,11 +35,11 @@ imports:
   subpackages:
   - codec
 - name: golang.org/x/sys
-  version: d989b31c87461dc8ab2f1cac6792814e27fadea9
+  version: 66b7b1311ac80bbafcd2daeef9a5e6e2cd1e2399
   subpackages:
   - unix
 - name: google.golang.org/appengine
-  version: ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06
+  version: 4a4468ece617fc8205e99368fa2200e9d1fad421
   subpackages:
   - cloudsql
 - name: gopkg.in/go-playground/validator.v8
