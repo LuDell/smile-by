@@ -121,7 +121,7 @@ func TestMQ(test *testing.T)  {
 
 	 go func() {
 	         for d := range msgs {
-				 seelog.Info("Received a message: %s", d.Body)
+				 seelog.Info("Received a message: ", string(d.Body))
 		         }
 	     }()
 
