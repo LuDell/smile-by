@@ -1,18 +1,17 @@
 package main
 
 import (
+	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
-	"smile-by/handler"
 	"smile-by/controller"
+	"smile-by/handler"
 	"smile-by/resource"
-	"smile-by/utils"
+	"time"
 )
 
 func main()  {
 	//初始init
-	logger := utils.Logger
 	dirs := []string{"views","config"} // 设置需要释放的目录
 	for _, dir := range dirs {
 		// 解压dir目录到当前目录
@@ -31,11 +30,11 @@ func main()  {
 
 		cookie,err := ctx.Request.Cookie("admin")
 		var value *string
-		if(err == nil){
+		if(err != nil){
 			value = &cookie.Value
 		}
 
-		logger.Info("返回的cookie值", value)
+		seelog.Info("返回的cookie值", value)
 		ctx.HTML(http.StatusOK,"index.html",gin.H{"data":"hello world"})
 
 	})

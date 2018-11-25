@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/cihub/seelog"
 	"testing"
 	"strconv"
 	"time"
@@ -120,11 +121,12 @@ func TestMQ(test *testing.T)  {
 
 	 go func() {
 	         for d := range msgs {
-		             log.Printf("Received a message: %s", d.Body)
+				 seelog.Info("Received a message: %s", d.Body)
 		         }
 	     }()
 
-	 log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	seelog.Info(" [*] Waiting for messages. To exit press CTRL+C")
+
 	 <-forever
 }
 

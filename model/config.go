@@ -1,9 +1,9 @@
 package model
 
 import (
-	"os"
 	"encoding/json"
-	"fmt"
+	"github.com/cihub/seelog"
+	"os"
 	"time"
 )
 
@@ -17,15 +17,15 @@ func initConfig() *Config {
 	file,err1 := os.Open("config/config.json")
 	defer file.Close()
 	if err1 !=nil {
-		fmt.Println("读取配置文件错误", err1)
+		seelog.Error("读取配置文件错误", err1)
 	}
 	decoder := json.NewDecoder(file)
 	config := Config{}
 	err2:= decoder.Decode(&config)
 	if err2 !=nil {
-		fmt.Println("数据绑定错误",err2)
+		seelog.Error("数据绑定错误",err2)
 	}
-	fmt.Println("config参数",config)
+	seelog.Info("config参数",config)
 	return &config
 }
 

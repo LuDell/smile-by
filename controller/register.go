@@ -1,6 +1,7 @@
 ﻿package controller
 
 import (
+	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
 	"smile-by/model"
@@ -8,8 +9,6 @@ import (
 )
 
 func Register(ctx *gin.Context) {
-	//日志
-	logger := utils.Logger
 	//用户注册
 	uid := ctx.Query("uid")
 	//TODO mongo 持久化
@@ -21,6 +20,6 @@ func Register(ctx *gin.Context) {
 
 	err1 := coll.Insert(&model.User{objectId,uid,25})
 	if err1 !=nil {
-		logger.Info("持久化异常",err1)
+		seelog.Info("持久化异常",err1)
 	}
 }
