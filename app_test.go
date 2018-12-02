@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/cihub/seelog"
-	"testing"
-	"strconv"
-	"time"
-	"smile-by/utils"
-	"os"
 	"encoding/json"
 	"fmt"
-	"smile-by/model"
+	"github.com/cihub/seelog"
 	"github.com/gomodule/redigo/redis"
 	"log"
+	"os"
+	"smile-by/model"
+	"smile-by/utils"
+	"strconv"
+	"testing"
+	"time"
 )
 
 var logger = utils.Logger
@@ -105,6 +105,7 @@ func TestMQ(test *testing.T)  {
 	defer connection.Close()
 
 	var channel,_ = connection.Channel()
+	defer channel.Close()
 	//channel.ExchangeDeclare("okay","topic",false,false,false,false,nil)
 	var quene,_ = channel.QueueDeclare("okay_queue",false,false,false,false,nil)
 	//channel.QueueBind("okay_queue","info","okay",false,nil)
@@ -112,7 +113,7 @@ func TestMQ(test *testing.T)  {
 	msgs, _ := channel.Consume(
 		 quene.Name,
 		"",
-		true,
+		false,
 		false,
 		false,
 		false,
@@ -122,6 +123,7 @@ func TestMQ(test *testing.T)  {
 	 go func() {
 	         for d := range msgs {
 				 seelog.Info("Received a message: ", string(d.Body))
+				 d.Ack(false)
 		         }
 	     }()
 
