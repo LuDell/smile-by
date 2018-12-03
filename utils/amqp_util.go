@@ -3,12 +3,15 @@ package utils
 import (
 	"fmt"
 	"github.com/streadway/amqp"
+	"smile-by/model"
 )
 
 var MQConn *amqp.Connection
 
 func init()  {
-	conn, err := amqp.Dial("amqp://admin:1q2w3e4r@144.34.237.147:5672/")
+	var config = model.SeeLogConfig.Amqp
+	var url = fmt.Sprintf("amqp://%s:%s@%s:%s/",config.User_name,config.Password,config.Tcp,config.Port)
+	conn, err := amqp.Dial(url)
 	if err != nil {
 		fmt.Errorf("mq connection fail %s",err)
 	}

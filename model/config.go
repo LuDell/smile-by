@@ -45,4 +45,10 @@ type Config struct {
 		Password string
 		Timeout time.Duration
 	}
+	Amqp struct{
+		Tcp string
+		Port string
+		User_name string
+		Password string
+	}
 }
