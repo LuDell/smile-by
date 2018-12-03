@@ -122,9 +122,13 @@ func TestMQ(test *testing.T)  {
 
 	 go func() {
 	         for d := range msgs {
-				 seelog.Info("Received a message: ", string(d.Body))
-				 d.Ack(false)
-		         }
+	         	header := d.Headers
+	         	for k,v := range header{
+	         		seelog.Info("header参数k = ",k,",v = ",v)
+				}
+	         	seelog.Info("Received a message: ", string(d.Body))
+	         	d.Ack(false)
+	         	}
 	     }()
 
 	seelog.Info(" [*] Waiting for messages. To exit press CTRL+C")
