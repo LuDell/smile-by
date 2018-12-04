@@ -46,6 +46,15 @@ type testMbsCustStrT []testCustomStringT
 
 func (testMbsCustStrT) MapBySlice() {}
 
+// type testSelferRecur struct{}
+
+// func (s *testSelferRecur) CodecEncodeSelf(e *Encoder) {
+// 	e.MustEncode(s)
+// }
+// func (s *testSelferRecur) CodecDecodeSelf(d *Decoder) {
+// 	d.MustDecode(s)
+// }
+
 type testIntfMapI interface {
 	GetIntfMapV() string
 }
@@ -376,12 +385,12 @@ func testInit() {
 	// and use on some places for testSimpleH e.g. for time.Time and wrapInt64
 	var (
 		myExtEncFn = func(x BytesExt, rv reflect.Value) (bs []byte, err error) {
-			defer panicToErr(errstrDecoratorDef{}, &err)
+			defer panicToErr(errDecoratorDef{}, &err)
 			bs = x.WriteExt(rv.Interface())
 			return
 		}
 		myExtDecFn = func(x BytesExt, rv reflect.Value, bs []byte) (err error) {
-			defer panicToErr(errstrDecoratorDef{}, &err)
+			defer panicToErr(errDecoratorDef{}, &err)
 			x.ReadExt(rv.Interface(), bs)
 			return
 		}
@@ -1677,7 +1686,7 @@ func doTestSwallowAndZero(t *testing.T, h Handle) {
 	e1.MustEncode(v1)
 	d1 := NewDecoderBytes(b1, h)
 	d1.swallow()
-	if d1.r.numread() != len(b1) {
+	if d1.r.numread() != uint(len(b1)) {
 		logT(t, "swallow didn't consume all encoded bytes: %v out of %v", d1.r.numread(), len(b1))
 		failT(t)
 	}
@@ -2310,6 +2319,116 @@ func doTestOmitempty(t *testing.T, name string, h Handle) {
 	testDeepEqualErr(b1, b2, t, name+"-omitempty-cmp")
 }
 
+func doTestMissingFields(t *testing.T, name string, h Handle) {
+	testOnce.Do(testInitAll)
+	if codecgen {
+		t.Skipf("Skipping Missing Fields tests as it is not honored by codecgen")
+	}
+	if h.getBasicHandle().StructToArray {
+		t.Skipf("Skipping Missing Fields test when StructToArray=true")
+	}
+	// encode missingFielderT2, decode into missingFielderT1, encode it out again, decode into new missingFielderT2, compare
+	v1 := missingFielderT2{S: "true seven eight", B: true, F: 777.0, I: -888}
+	b1 := testMarshalErr(v1, h, t, name+"-missing-enc-2")
+	// xdebugf("marshal into b1: %s", b1)
+	var v2 missingFielderT1
+	testUnmarshalErr(&v2, b1, h, t, name+"-missing-dec-1")
+	// xdebugf("unmarshal into v2: %v", v2)
+	b2 := testMarshalErr(&v2, h, t, name+"-missing-enc-1")
+	// xdebugf("marshal into b2: %s", b2)
+	var v3 missingFielderT2
+	testUnmarshalErr(&v3, b2, h, t, name+"-missing-dec-2")
+	// xdebugf("unmarshal into v3: %v", v3)
+	testDeepEqualErr(v1, v3, t, name+"-missing-cmp-2")
+}
+
+func doTestMaxDepth(t *testing.T, name string, h Handle) {
+	testOnce.Do(testInitAll)
+	type T struct {
+		I interface{} // value to encode
+		M int16       // maxdepth
+		S bool        // use swallow (decode into typed struct with only A1)
+		E interface{} // error to find
+	}
+	type T1 struct {
+		A1 *T1
+	}
+	var table []T
+	var sfunc = func(n int) (s [1]interface{}, s1 *[1]interface{}) {
+		s1 = &s
+		for i := 0; i < n; i++ {
+			var s0 [1]interface{}
+			s1[0] = &s0
+			s1 = &s0
+		}
+		// xdebugf("sfunc s: %v", s)
+		return
+		// var s []interface{}
+		// s = append(s, []interface{})
+		// s[0] = append(s[0], []interface{})
+		// s[0][0] = append(s[0][0], []interface{})
+		// s[0][0][0] = append(s[0][0][0], []interface{})
+		// s[0][0][0][0] = append(s[0][0][0][0], []interface{})
+		// return s
+	}
+	var mfunc = func(n int) (m map[string]interface{}, mlast map[string]interface{}) {
+		m = make(map[string]interface{})
+		mlast = make(map[string]interface{})
+		m["A0"] = mlast
+		for i := 1; i < n; i++ {
+			m0 := make(map[string]interface{})
+			mlast["A"+strconv.FormatInt(int64(i), 10)] = m0
+			mlast = m0
+		}
+		// xdebugf("mfunc m: %v", m)
+		return
+	}
+	s, s1 := sfunc(5)
+	m, _ := mfunc(5)
+	m99, _ := mfunc(99)
+
+	s1[0] = m
+
+	table = append(table, T{s, 0, false, nil})
+	table = append(table, T{s, 256, false, nil})
+	table = append(table, T{s, 7, false, errMaxDepthExceeded})
+	table = append(table, T{s, 15, false, nil})
+	table = append(table, T{m99, 15, true, errMaxDepthExceeded})
+	table = append(table, T{m99, 215, true, nil})
+
+	defer func(n int16, b bool) {
+		h.getBasicHandle().MaxDepth = n
+		testUseMust = b
+	}(h.getBasicHandle().MaxDepth, testUseMust)
+
+	testUseMust = false
+	for i, v := range table {
+		h.getBasicHandle().MaxDepth = v.M
+		b1 := testMarshalErr(v.I, h, t, name+"-maxdepth-enc"+strconv.FormatInt(int64(i), 10))
+		// xdebugf("b1: %s", b1)
+		var err error
+		if v.S {
+			var v2 T1
+			err = testUnmarshal(&v2, b1, h)
+		} else {
+			var v2 interface{}
+			err = testUnmarshal(&v2, b1, h)
+		}
+		if err1, ok := err.(decodeError); ok {
+			err = err1.codecError
+		}
+		var err0 interface{} = err
+		if err1, ok := err.(codecError); ok {
+			err0 = err1.err
+		}
+		if err0 != v.E {
+			failT(t, "Unexpected error testing max depth for depth %d: expected %v, received %v", v.M, v.E, err)
+		}
+
+		// decode into something that just triggers swallow
+	}
+}
+
 // -----------------
 
 func TestJsonDecodeNonStringScalarInStringContext(t *testing.T) {
@@ -2448,8 +2567,9 @@ func TestBufioDecReader(t *testing.T) {
 	var s = strings.Repeat("01234'56789      ", 5)
 	// fmt.Printf("s: %s\n", s)
 	var r = strings.NewReader(s)
-	var br = &bufioDecReader{r: r, buf: make([]byte, 0, 13)}
-	b, err := ioutil.ReadAll(br)
+	var br = &bufioDecReader{buf: make([]byte, 0, 13)}
+	br.r = r
+	b, err := ioutil.ReadAll(br.r)
 	if err != nil {
 		panic(err)
 	}
@@ -2464,7 +2584,8 @@ func TestBufioDecReader(t *testing.T) {
 	// readUntil: see: 56789
 	var out []byte
 	var token byte
-	br = &bufioDecReader{r: strings.NewReader(s), buf: make([]byte, 0, 7)}
+	br = &bufioDecReader{buf: make([]byte, 0, 7)}
+	br.r = strings.NewReader(s)
 	// println()
 	for _, v2 := range [...]string{
 		`01234'`,
@@ -2476,7 +2597,8 @@ func TestBufioDecReader(t *testing.T) {
 		testDeepEqualErr(string(out), v2, t, "-")
 		// fmt.Printf("readUntil: out: `%s`\n", out)
 	}
-	br = &bufioDecReader{r: strings.NewReader(s), buf: make([]byte, 0, 7)}
+	br = &bufioDecReader{buf: make([]byte, 0, 7)}
+	br.r = strings.NewReader(s)
 	// println()
 	for range [4]struct{}{} {
 		out = br.readTo(nil, &jsonNumSet)
@@ -2491,9 +2613,10 @@ func TestBufioDecReader(t *testing.T) {
 		out = br.readUntil(nil, '0')
 		testDeepEqualErr(string(out), `      0`, t, "-")
 		// fmt.Printf("readUntil: out: `%s`\n", out)
-		br.UnreadByte()
+		br.unreadn1()
 	}
-	br = &bufioDecReader{r: strings.NewReader(s), buf: make([]byte, 0, 7)}
+	br = &bufioDecReader{buf: make([]byte, 0, 7)}
+	br.r = strings.NewReader(s)
 	// println()
 	for range [4]struct{}{} {
 		out = br.readUntil(nil, ' ')
@@ -2502,7 +2625,7 @@ func TestBufioDecReader(t *testing.T) {
 		token = br.skip(&jsonCharWhitespaceSet)
 		testDeepEqualErr(token, byte('0'), t, "-")
 		// fmt.Printf("skip: token: '%c'\n", token)
-		br.UnreadByte()
+		br.unreadn1()
 	}
 	// println()
 }
@@ -2549,6 +2672,30 @@ func TestJsonInvalidUnicode(t *testing.T) {
 			failT(t)
 		}
 	}
+}
+
+func TestMsgpackDecodeMapAndExtSizeMismatch(t *testing.T) {
+	fn := func(t *testing.T, b []byte, v interface{}) {
+		if err := NewDecoderBytes(b, testMsgpackH).Decode(v); err != io.EOF && err != io.ErrUnexpectedEOF {
+			t.Fatalf("expected EOF or ErrUnexpectedEOF, got %v", err)
+		}
+	}
+
+	// a map claiming to have 0x10eeeeee KV pairs, but only has 1.
+	var b = []byte{0xdf, 0x10, 0xee, 0xee, 0xee, 0x1, 0xa1, 0x1}
+	var m1 map[int]string
+	var m2 map[int][]byte
+	fn(t, b, &m1)
+	fn(t, b, &m2)
+
+	// an extension claiming to have 0x7fffffff bytes, but only has 1.
+	b = []byte{0xc9, 0x7f, 0xff, 0xff, 0xff, 0xda, 0x1}
+	var a interface{}
+	fn(t, b, &a)
+
+	// b = []byte{0x00}
+	// var s testSelferRecur
+	// fn(t, b, &s)
 }
 
 // ----------
@@ -2987,16 +3134,56 @@ func TestSimpleIntfMapping(t *testing.T) {
 	doTestIntfMapping(t, "simple", testSimpleH)
 }
 
+func TestJsonMissingFields(t *testing.T) {
+	doTestMissingFields(t, "json", testJsonH)
+}
+
+func TestCborMissingFields(t *testing.T) {
+	doTestMissingFields(t, "cbor", testCborH)
+}
+
+func TestMsgpackMissingFields(t *testing.T) {
+	doTestMissingFields(t, "msgpack", testMsgpackH)
+}
+
+func TestBincMissingFields(t *testing.T) {
+	doTestMissingFields(t, "binc", testBincH)
+}
+
+func TestSimpleMissingFields(t *testing.T) {
+	doTestMissingFields(t, "simple", testSimpleH)
+}
+
+func TestJsonMaxDepth(t *testing.T) {
+	doTestMaxDepth(t, "json", testJsonH)
+}
+
+func TestCborMaxDepth(t *testing.T) {
+	doTestMaxDepth(t, "cbor", testCborH)
+}
+
+func TestMsgpackMaxDepth(t *testing.T) {
+	doTestMaxDepth(t, "msgpack", testMsgpackH)
+}
+
+func TestBincMaxDepth(t *testing.T) {
+	doTestMaxDepth(t, "binc", testBincH)
+}
+
+func TestSimpleMaxDepth(t *testing.T) {
+	doTestMaxDepth(t, "simple", testSimpleH)
+}
+
 // TODO:
 //
-// Add Tests for:
+// Add Tests for the following:
 // - struct tags: on anonymous fields, _struct (all fields), etc
 // - chan to encode and decode (with support for codecgen also)
 //
 // Add negative tests for failure conditions:
 // - bad input with large array length prefix
 //
-// decode.go (standalone)
+// Add tests for decode.go (standalone)
 // - UnreadByte: only 2 states (z.ls = 2 and z.ls = 1) (0 --> 2 --> 1)
 // - track: z.trb: track, stop track, check
 // - PreferArrayOverSlice???
@@ -3007,5 +3194,5 @@ func TestSimpleIntfMapping(t *testing.T) {
 // - decnaked: n.l == nil
 // - ensureDecodeable (try to decode into a non-decodeable thing e.g. a nil interface{},
 //
-// encode.go (standalone)
+// Add tests for encode.go (standalone)
 // - nil and 0-len slices and maps for non-fastpath things

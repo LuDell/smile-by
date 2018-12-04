@@ -68,6 +68,7 @@ func testSuite(t *testing.T, f func(t *testing.T)) {
 	testUseMust = true
 	testInternStr = true
 	testUseIoEncDec = 0
+	// xdebugf("setting StructToArray=true")
 	testStructToArray = true
 	testCheckCircRef = true
 	testUseReset = true
@@ -76,6 +77,8 @@ func testSuite(t *testing.T, f func(t *testing.T)) {
 	testReinit()
 	t.Run("optionsTrue", f)
 
+	// xdebugf("setting StructToArray=false")
+	testStructToArray = false
 	testDepth = 6
 	testReinit()
 	t.Run("optionsTrue-deepstruct", f)
@@ -239,9 +242,20 @@ func testCodecGroup(t *testing.T) {
 	t.Run("TestMsgpackIntfMapping", TestMsgpackIntfMapping)
 	t.Run("TestBincIntfMapping", TestBincIntfMapping)
 	t.Run("TestSimpleIntfMapping", TestSimpleIntfMapping)
+	t.Run("TestJsonMissingFields", TestJsonMissingFields)
+	t.Run("TestCborMissingFields", TestCborMissingFields)
+	t.Run("TestMsgpackMissingFields", TestMsgpackMissingFields)
+	t.Run("TestBincMissingFields", TestBincMissingFields)
+	t.Run("TestSimpleMissingFields", TestSimpleMissingFields)
+	t.Run("TestJsonMaxDepth", TestJsonMaxDepth)
+	t.Run("TestCborMaxDepth", TestCborMaxDepth)
+	t.Run("TestMsgpackMaxDepth", TestMsgpackMaxDepth)
+	t.Run("TestBincMaxDepth", TestBincMaxDepth)
+	t.Run("TestSimpleMaxDepth", TestSimpleMaxDepth)
 
 	t.Run("TestJsonInvalidUnicode", TestJsonInvalidUnicode)
 	t.Run("TestCborHalfFloat", TestCborHalfFloat)
+	t.Run("TestMsgpackDecodeMapAndExtSizeMismatch", TestMsgpackDecodeMapAndExtSizeMismatch)
 	// <tear-down code>
 }
 
@@ -265,13 +279,16 @@ func testJsonGroup(t *testing.T) {
 	t.Run("TestJsonEmbeddedFieldPrecedence", TestJsonEmbeddedFieldPrecedence)
 	t.Run("TestJsonLargeContainerLen", TestJsonLargeContainerLen)
 	t.Run("TestJsonMammothMapsAndSlices", TestJsonMammothMapsAndSlices)
-	t.Run("TestJsonInvalidUnicode", TestJsonInvalidUnicode)
 	t.Run("TestJsonTime", TestJsonTime)
 	t.Run("TestJsonUintToInt", TestJsonUintToInt)
 	t.Run("TestJsonDifferentMapOrSliceType", TestJsonDifferentMapOrSliceType)
 	t.Run("TestJsonScalars", TestJsonScalars)
 	t.Run("TestJsonOmitempty", TestJsonOmitempty)
 	t.Run("TestJsonIntfMapping", TestJsonIntfMapping)
+	t.Run("TestJsonMissingFields", TestJsonMissingFields)
+	t.Run("TestJsonMaxDepth", TestJsonMaxDepth)
+
+	t.Run("TestJsonInvalidUnicode", TestJsonInvalidUnicode)
 }
 
 func testBincGroup(t *testing.T) {
@@ -297,6 +314,8 @@ func testBincGroup(t *testing.T) {
 	t.Run("TestBincScalars", TestBincScalars)
 	t.Run("TestBincOmitempty", TestBincOmitempty)
 	t.Run("TestBincIntfMapping", TestBincIntfMapping)
+	t.Run("TestBincMissingFields", TestBincMissingFields)
+	t.Run("TestBincMaxDepth", TestBincMaxDepth)
 }
 
 func testCborGroup(t *testing.T) {
@@ -323,6 +342,9 @@ func testCborGroup(t *testing.T) {
 	t.Run("TestCborScalars", TestCborScalars)
 	t.Run("TestCborOmitempty", TestCborOmitempty)
 	t.Run("TestCborIntfMapping", TestCborIntfMapping)
+	t.Run("TestCborMissingFields", TestCborMissingFields)
+	t.Run("TestCborMaxDepth", TestCborMaxDepth)
+
 	t.Run("TestCborHalfFloat", TestCborHalfFloat)
 }
 
@@ -348,6 +370,10 @@ func testMsgpackGroup(t *testing.T) {
 	t.Run("TestMsgpackScalars", TestMsgpackScalars)
 	t.Run("TestMsgpackOmitempty", TestMsgpackOmitempty)
 	t.Run("TestMsgpackIntfMapping", TestMsgpackIntfMapping)
+	t.Run("TestMsgpackMissingFields", TestMsgpackMissingFields)
+	t.Run("TestMsgpackMaxDepth", TestMsgpackMaxDepth)
+
+	t.Run("TestMsgpackDecodeMapAndExtSizeMismatch", TestMsgpackDecodeMapAndExtSizeMismatch)
 }
 
 func testSimpleGroup(t *testing.T) {
@@ -371,6 +397,8 @@ func testSimpleGroup(t *testing.T) {
 	t.Run("TestSimpleScalars", TestSimpleScalars)
 	t.Run("TestSimpleOmitempty", TestSimpleOmitempty)
 	t.Run("TestSimpleIntfMapping", TestSimpleIntfMapping)
+	t.Run("TestSimpleMissingFields", TestSimpleMissingFields)
+	t.Run("TestSimpleMaxDepth", TestSimpleMaxDepth)
 }
 
 func testSimpleMammothGroup(t *testing.T) {
