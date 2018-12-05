@@ -6,20 +6,11 @@ import (
 	"net/http"
 	"smile-by/controller"
 	"smile-by/handler"
-	"smile-by/resource"
 	"time"
 )
 
 func main()  {
 	//初始init
-	dirs := []string{"views","config"} // 设置需要释放的目录
-	for _, dir := range dirs {
-		// 解压dir目录到当前目录
-		if err := resource.RestoreAssets("./", dir); err != nil {
-			break
-		}
-	}
-
 	app := gin.New()
 	app.Use(gin.Recovery())
 	app.Static("/static","views/static")
