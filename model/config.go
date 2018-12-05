@@ -51,4 +51,11 @@ type Config struct {
 		User_name string
 		Password string
 	}
+	Mysql struct{
+		Tcp string
+		Port string
+		User_name string
+		Password string
+		Database string
+	}
 }

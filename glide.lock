@@ -1,6 +1,8 @@
 hash: a4143487091ea3881d793414c92daf811602f8e516454cc2d9c446ff43faccc5
-updated: 2018-12-04T20:27:37.3571719+08:00
+updated: 2018-12-05T19:42:03.1762791+08:00
 imports:
+- name: github.com/BurntSushi/toml
+  version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
 - name: github.com/gin-contrib/sse
@@ -15,6 +17,12 @@ imports:
   version: 72cd26f257d44c1114970e19afddcd812016007e
 - name: github.com/gohouse/gorose
   version: 5aeebf3335499bae38b9292594d8c2e44d5a0b4f
+  subpackages:
+  - across
+  - builder
+  - cors
+  - parser
+  - utils
 - name: github.com/golang/protobuf
   version: 1d3f30b51784bec5aad268e59fd3c2fc1c2fe73f
   subpackages:
@@ -33,13 +41,13 @@ imports:
 - name: github.com/modern-go/reflect2
   version: 94122c33edd36123c84d5368cfb2b69df93a0ec8
 - name: github.com/streadway/amqp
-  version: 27835f1a64e97101d95306211f03c0620ffa295d
+  version: 02019c73da7a16c968b4b9206e551ac19a58be82
 - name: github.com/ugorji/go
-  version: 856da096dbdf68ec809a132c863f3d7e3f40b09f
+  version: d75b2dcb6bc890b13ac61b764f5dc5e5a5591dce
   subpackages:
   - codec
 - name: golang.org/x/sys
-  version: 4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31
+  version: a5c9d58dba9a56f97aaa86f55e638b718c5a6c42
   subpackages:
   - unix
 - name: google.golang.org/appengine
