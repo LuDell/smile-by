@@ -21,7 +21,7 @@ func main()  {
 
 		cookie,err := ctx.Request.Cookie("admin")
 		var value *string
-		if(err != nil){
+		if(err == nil){
 			value = &cookie.Value
 		}
 
