@@ -30,6 +30,8 @@ func main()  {
 
 	})
 
+	app.GET("/ws", controller.WsHandler)
+
 	group := app.Group("api",handler.AuthHandler)
 	{
 		group.OPTIONS("public_info", func(ctx *gin.Context) {

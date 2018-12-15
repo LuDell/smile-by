@@ -1,5 +1,5 @@
-hash: a4143487091ea3881d793414c92daf811602f8e516454cc2d9c446ff43faccc5
-updated: 2018-12-05T19:42:03.1762791+08:00
+hash: 0a4b5a270c93b409e41721b2fb9174c0f5e23d6abb8d66ee020821087f744f7c
+updated: 2018-12-09T00:41:51.4542783+08:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
@@ -24,7 +24,7 @@ imports:
   - parser
   - utils
 - name: github.com/golang/protobuf
-  version: 1d3f30b51784bec5aad268e59fd3c2fc1c2fe73f
+  version: aa810b61a9c79d51363740d207bb46cf8e620ed5
   subpackages:
   - proto
 - name: github.com/gomodule/redigo
@@ -32,26 +32,28 @@ imports:
   subpackages:
   - internal
   - redis
+- name: github.com/gorilla/websocket
+  version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
 - name: github.com/json-iterator/go
-  version: d05f387f50c0c406889b62cb5ec51c76a64d89ee
+  version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/mattn/go-isatty
-  version: 3fb116b820352b7f0c281308a4d6250c22d94e27
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
 - name: github.com/modern-go/concurrent
   version: bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94
 - name: github.com/modern-go/reflect2
   version: 94122c33edd36123c84d5368cfb2b69df93a0ec8
 - name: github.com/streadway/amqp
-  version: 02019c73da7a16c968b4b9206e551ac19a58be82
+  version: a314942b2fd9dde7a3f70ba3f1062848ce6eb392
 - name: github.com/ugorji/go
-  version: d75b2dcb6bc890b13ac61b764f5dc5e5a5591dce
+  version: 00b869d2f4a5e27445c2d916fa106fc72c106d4c
   subpackages:
   - codec
 - name: golang.org/x/sys
-  version: a5c9d58dba9a56f97aaa86f55e638b718c5a6c42
+  version: 1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded
   subpackages:
   - unix
 - name: google.golang.org/appengine
-  version: a37df1387b4521194676d88c79230c613610d5f4
+  version: 4216e58b9158e5f1c906f1aca75162a46a2ec88a
   subpackages:
   - cloudsql
 - name: gopkg.in/go-playground/validator.v8
@@ -64,5 +66,5 @@ imports:
   - internal/sasl
   - internal/scram
 - name: gopkg.in/yaml.v2
-  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []
