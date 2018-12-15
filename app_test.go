@@ -112,7 +112,7 @@ func TestMQ(test *testing.T)  {
 
 	msgs, _ := channel.Consume(
 		 quene.Name,
-		"",
+		"smile-by",
 		false,
 		false,
 		false,
