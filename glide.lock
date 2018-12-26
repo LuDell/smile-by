@@ -1,5 +1,5 @@
 hash: 4df6ef43c319861ec001d22da113efcdb22bce5252d54ac532a318251cd38bb2
-updated: 2018-12-26T20:30:15.615757+08:00
+updated: 2018-12-27T00:19:52.9975367+08:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
@@ -14,7 +14,7 @@ imports:
   - json
   - render
 - name: github.com/go-sql-driver/mysql
-  version: 72cd26f257d44c1114970e19afddcd812016007e
+  version: c45f530f8e7fe40f4687eaa50d0c8c5f1b66f9e0
 - name: github.com/gohouse/gorose
   version: 5aeebf3335499bae38b9292594d8c2e44d5a0b4f
   subpackages:
